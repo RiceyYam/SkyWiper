@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "skywiper",
+  "version": "${version}",
+  "name": "SkyWiper",
+  "description": "How to make hypixel staff explode? :)",
+  "authors": [],
+  "contact": {},
+  "license": "All-Rights-Reserved",
+  "icon": "assets/skywiper/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "fabric-datagen": [
+      "org.ricey_yam.skywiper.client.SkyWiperDataGenerator"
+    ],
+    "client": [
+      "org.ricey_yam.skywiper.client.SkyWiperClient"
+    ],
+    "main": [
+      "org.ricey_yam.skywiper.SkyWiper"
+    ]
+  },
+  "mixins": [
+    "skywiper.mixins.json",
+    {
+      "config": "skywiper.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
