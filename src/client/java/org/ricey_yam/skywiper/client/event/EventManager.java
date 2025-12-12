@@ -1,20 +1,20 @@
 package org.ricey_yam.skywiper.client.event;
 
+import lombok.Getter;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
-import net.minecraft.client.MinecraftClient;
 
-public class ModEndTickEventManager {
-    private static final TaskEndTickTickEvent END_TICK_EVENT = new TaskEndTickTickEvent();
-    private static final ReceiveMessageEvent RECEIVE_MESSAGE_EVENT = new ReceiveMessageEvent();
+public class EventManager {
+    public static final TaskEndTickTickEvent END_TICK_EVENT = new TaskEndTickTickEvent();
+    public static final ReceiveMessageEvent RECEIVE_MESSAGE_EVENT = new ReceiveMessageEvent();
 
     public static void init(){
         registerTaskEndTickEvent();
-
         registerReceiveMessageEvent();
     }
 
     private static void registerTaskEndTickEvent(){
-        MinecraftClient.getInstance().execute(END_TICK_EVENT::tick);
+        ClientTickEvents.END_CLIENT_TICK.register(client -> END_TICK_EVENT.tick());
     }
 
     private static void registerReceiveMessageEvent(){

@@ -61,7 +61,7 @@ public class EntityUtils {
 
     public static String getEntityDisplayName(LivingEntity entity) {
         var mc = ClientUtils.getClient();
-        if (mc.world == null) return null;
+        if (mc.world == null || entity == null) return null;
 
         if (entity.hasCustomName()) {
             return Objects.requireNonNull(entity.getCustomName()).getString().trim();

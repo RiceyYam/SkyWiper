@@ -14,6 +14,10 @@ public class SkbEntityUtils {
         var entities = EntityUtils.scanAllEntity(entity, ArmorStandEntity.class,boxSize, e -> {
             var bse = SkbEntity.getInstancePool().borrowInstance(e);
             if(bse == null) return false;
+            if(bse.getBoundEntity() == null){
+                bse.release();
+                return false;
+            }
             var r = filter.test(bse);
             if(r) skbEntities.add(bse);
             else bse.release();

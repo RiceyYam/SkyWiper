@@ -25,7 +25,7 @@ public class ChatHelper {
     /// 发送服务器聊天信息
     public static void sendMessage(String message){
         var currentTimestamp = System.currentTimeMillis();
-        if(currentTimestamp - lastSendMessageTimestamp < sendMessageTimestampDuration) return;
+        if(currentTimestamp - lastSendMessageTimestamp < sendMessageTimestampDuration && lastSendMessageTimestamp != 0) return;
 
         var client = ClientUtils.getClient();
         if(client == null) return;
@@ -36,7 +36,7 @@ public class ChatHelper {
     /// 执行服务器指令
     public static void sendCommand(String command){
         var currentTimestamp = System.currentTimeMillis();
-        if(currentTimestamp - lastSendCommandTimestamp < sendCommandTimestampDuration) return;
+        if(currentTimestamp - lastSendCommandTimestamp < sendCommandTimestampDuration && lastSendCommandTimestamp != 0) return;
 
         var client = ClientUtils.getClient();
         if(client == null) return;

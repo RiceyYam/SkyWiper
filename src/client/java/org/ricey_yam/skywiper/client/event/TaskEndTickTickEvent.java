@@ -4,9 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.ricey_yam.skywiper.client.task.ITaskType;
 import org.ricey_yam.skywiper.client.task.Task;
-import org.ricey_yam.skywiper.client.task.life.AutoRejoinSkyblockTask;
-import org.ricey_yam.skywiper.client.task.life.LifeTask;
-import org.ricey_yam.skywiper.client.task.life.LifeTaskType;
+import org.ricey_yam.skywiper.client.task.life.*;
 import org.ricey_yam.skywiper.client.task.skb.GettingEyesTask;
 import org.ricey_yam.skywiper.client.task.TaskState;
 import org.ricey_yam.skywiper.client.task.skb.SkbTask;
@@ -19,6 +17,10 @@ import java.util.List;
 @Setter
 public class TaskEndTickTickEvent {
     private List<Task> tasks = new ArrayList<>();
+    public TaskEndTickTickEvent(){
+        registerAllSkbTasks();
+        registerAndEnableAllLifeTasks();
+    }
 
     public void tick(){
         if(tasks == null || tasks.isEmpty()) return;
@@ -30,57 +32,50 @@ public class TaskEndTickTickEvent {
         }
     }
 
-    public void enable(SkbTaskType skbTaskType){
-        var registeredTask = getRegisteredTask(skbTaskType);
-        if(registeredTask == null) {
-            registeredTask = new GettingEyesTask();
-            registerTask(registeredTask);
-        }
+    public void enable(ITaskType taskType){
+        var registeredTask = getRegisteredTask(taskType);
         registeredTask.start();
     }
 
-    public void disable(SkbTaskType skbTaskType){
-        var registeredTask = getRegisteredTask(skbTaskType);
-        if(registeredTask == null) {
-            registeredTask = new GettingEyesTask();
-            registerTask(registeredTask);
-        }
+    public void disable(ITaskType taskType){
+        var registeredTask = getRegisteredTask(taskType);
         registeredTask.stop();
+    }
+
+    public boolean isTaskEnabled(ITaskType taskType){
+        var registeredTask = getRegisteredTask(taskType);
+        if(registeredTask == null) return false;
+        return registeredTask.getState() == TaskState.IDLE;
     }
 
     public void registerTask(Task task){
         tasks.add(task);
     }
 
-    private Task createNewTask(ITaskType taskType){
-        if(taskType instanceof SkbTaskType skbTaskType){
-            switch(skbTaskType){
-                case GETTING_EYES ->{
-                    return new GettingEyesTask();
-                }
+    public Task getRegisteredTask(ITaskType taskType){
+        for(var task : tasks){
+            if(task instanceof LifeTask lifeTask && taskType instanceof LifeTaskType lifeTaskType){
+                if(lifeTask.getType() == lifeTaskType) return task;
             }
-        }
-        else if(taskType instanceof LifeTaskType lifeTaskType){
-            switch(lifeTaskType){
-                case AUTO_REJOIN_SKYBLOCK ->{
-                    return new AutoRejoinSkyblockTask();
-                }
+            else if(task instanceof SkbTask skbTask && taskType instanceof SkbTaskType skbTaskType){
+                if(skbTask.getType() == skbTaskType) return task;
             }
         }
         return null;
     }
 
-    public Task getRegisteredTask(ITaskType taskType){
-        for(var task : tasks){
-            if(task instanceof LifeTask lifeTask){
-                var lifeTaskType = (LifeTaskType)taskType;
-                if(lifeTask.getType() == lifeTaskType) return task;
-            }
-            else if(task instanceof SkbTask skbTask){
-                var skbTaskType = (SkbTaskType) taskType;
-                if(skbTask.getType() == skbTaskType) return task;
-            }
-        }
-        return null;
+    private void registerAllSkbTasks(){
+        registerTask(new GettingEyesTask());
+    }
+
+    private void registerAndEnableAllLifeTasks(){
+        registerTask(new FunctionHubTask());
+        enable(LifeTaskType.FUNCTION_HUB);
+
+        registerTask(new AutoRejoinSkyblockTask());
+        enable(LifeTaskType.AUTO_REJOIN_SKYBLOCK);
+
+        registerTask(new AutoTipTask());
+        enable(LifeTaskType.AUTO_TIP);
     }
 }

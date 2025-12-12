@@ -1,16 +1,21 @@
 package org.ricey_yam.skywiper.client;
 
+import lombok.Getter;
 import net.fabricmc.api.ClientModInitializer;
 import net.minecraft.text.Text;
 import org.ricey_yam.skywiper.client.command.ModCommand;
-import org.ricey_yam.skywiper.client.event.ModEndTickEventManager;
+import org.ricey_yam.skywiper.client.event.EventManager;
 import org.ricey_yam.skywiper.client.utils.client.ClientUtils;
 
+import java.util.Random;
+
 public class SkyWiperClient implements ClientModInitializer {
+    @Getter
+    private static final Random random = new Random();
 
     @Override
     public void onInitializeClient() {
-        ModEndTickEventManager.init();
+        EventManager.init();
 
         ModCommand.registerCommand();
     }

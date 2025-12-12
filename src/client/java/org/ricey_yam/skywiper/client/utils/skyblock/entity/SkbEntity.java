@@ -4,11 +4,13 @@ import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.decoration.ArmorStandEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import org.ricey_yam.skywiper.client.utils.format.LongUtils;
+import org.ricey_yam.skywiper.client.utils.format.pattern.GamePattern;
 import org.ricey_yam.skywiper.client.utils.game_ext.EntityUtils;
 import org.ricey_yam.skywiper.client.utils.pool.IPoolable;
 import org.ricey_yam.skywiper.client.utils.pool.InstancePool;
 
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.regex.Pattern;
 
 @Getter
@@ -16,13 +18,15 @@ import java.util.regex.Pattern;
 public class SkbEntity implements IPoolable {
     @Getter
     private final static InstancePool<SkbEntity> instancePool = new InstancePool<>(200,SkbEntity.class);
-    private final static Pattern ENTITY_INFO_PATTERN = Pattern.compile("");
+    private final static Pattern ENTITY_INFO_PATTERN = Pattern.compile(
+            "\\S*\\s+\\S\\s+(?<name>\\D+?)\\s+(?<health>\\S+)/(?<maxHealth>\\S+)❤"
+    );
 
     private ArmorStandEntity armorStandEntity;
     private LivingEntity boundEntity;
     private String name;
-    private int maxHealth;
-    private int health;
+    private long maxHealth;
+    private long health;
 
     @Override
     public void reset(){
@@ -52,23 +56,20 @@ public class SkbEntity implements IPoolable {
     }
 
     private void refreshBoundEntity(){
-        this.boundEntity = EntityUtils.findNearestEntity(armorStandEntity, LivingEntity.class,2,e -> !(e instanceof ArmorStandEntity) && e != armorStandEntity);
+        this.boundEntity = EntityUtils.findNearestEntity(armorStandEntity, LivingEntity.class,2,e -> !(e instanceof ArmorStandEntity) && e != armorStandEntity&& !(e instanceof PlayerEntity));
         if(boundEntity != null){
-            var temp0 = EntityUtils.getEntityDisplayName(armorStandEntity);
-            if (temp0 != null) {
-                var temp1 = temp0.split(" ",3)[2];
-                var temp2 = temp1.split("❤")[0];
-                var entityInfo = temp2.split(" ");
-                var nameBuilder = new StringBuilder();
-                var lastIndex = entityInfo.length - 1;
-                for (int i = 0; i < lastIndex; i++) {
-                    nameBuilder.append(entityInfo[i]).append(i == lastIndex - 1 ? "" : " ");
+            var infoStr = GamePattern.cleanColorSymbol(EntityUtils.getEntityDisplayName(armorStandEntity));
+            if (!infoStr.isEmpty()) {
+                var infoMatcher = ENTITY_INFO_PATTERN.matcher(infoStr);
+                if(infoMatcher.find()){
+                    this.name = infoMatcher.group("name").trim();
+                    this.health = LongUtils.parseHumanReadableNumber(infoMatcher.group("health"));
+                    this.maxHealth = LongUtils.parseHumanReadableNumber(infoMatcher.group("maxHealth"));
                 }
-                this.name = nameBuilder.toString();
-                var healthInfo = entityInfo[lastIndex].split("/");
-                this.health = Integer.parseInt(healthInfo[0].replaceAll(",",""));
-                this.maxHealth = Integer.parseInt(healthInfo[1].replaceAll(",",""));
             }
         }
+    }
+    private void getHealthValue(){
+
     }
 }

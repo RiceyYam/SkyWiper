@@ -1,6 +1,10 @@
 package org.ricey_yam.skywiper.client.utils.game_ext.block;
 
+import net.minecraft.block.Block;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.registry.Registries;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.*;
@@ -55,5 +59,20 @@ public class BlockUtils {
             }
         }
         return result;
+    }
+    /// 获取方块ID
+    public static String getBlockID(BlockPos pos) {
+        var world = MinecraftClient.getInstance().world;
+        if (world == null || pos == null) {
+            return null;
+        }
+        Block block = world.getBlockState(pos).getBlock();
+        Identifier blockId = Registries.BLOCK.getId(block);
+        return blockId.toString();
+    }
+    public static String getBlockID(Block block) {
+        if(block == null) return null;
+        Identifier blockId = Registries.BLOCK.getId(block);
+        return blockId.toString();
     }
 }
